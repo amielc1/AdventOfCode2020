@@ -25,11 +25,18 @@ namespace AdventOfCode2020.Day2
         public char Letter { get; set; }
         public string Password { get; set; }
 
+        public bool IsValidPart2()
+        {
+            var first = Password[Min - 1] == Letter;
+            var second = Password[Max - 1] == Letter;
+            return (first && !second) || (second && !first);
+        }
+
         public bool IsValid()
         {
             var accurence = Password.Where(c => c == Letter).Count();
             var isValid = accurence >= Min && accurence <= Max ? true : false;
-            return isValid; 
+            return isValid;
         }
     }
     public class Day2_Password_Philosophy
@@ -38,13 +45,8 @@ namespace AdventOfCode2020.Day2
         {
             string passPath = @"C:\Users\amielc1\source\repos\AdventOfCode2020\AdventOfCode2020\Day2\Passwords.txt";
             var rawPass = File.ReadAllLines(passPath).ToList();
-            List<PasswordCriteria> passwordCriteria = new List<PasswordCriteria>();
-            rawPass.ForEach(raw =>
-            {
-                passwordCriteria.Add(new PasswordCriteria(raw));
-            });
-
-            var validItems = passwordCriteria.Where(i => i.IsValid()).Count();
+            var passwordCriteria = rawPass.ConvertAll(r => new PasswordCriteria(r));
+            var validItems = passwordCriteria.Where(i => i.IsValidPart2()).Count();
             return validItems;
         }
     }
