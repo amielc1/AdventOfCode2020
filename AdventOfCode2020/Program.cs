@@ -8,8 +8,8 @@ namespace AdventOfCode2020
         {
             Console.WriteLine("Start!");
 
-            var part1 = new Day1().CalcPart1();
-
+            //var part1 = new Day1().CalcPart1();
+            var day2 = new Day2.Day2_Password_Philosophy().Calc();
             Console.ReadLine();
         }
     }
