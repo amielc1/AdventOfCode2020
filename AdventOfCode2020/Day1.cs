@@ -22,7 +22,7 @@ namespace AdventOfCode2020
                     if (sum == 2020)
                     {
                         mult = inputList[i] * inputList[j];
-                    }
+                    } 
                 }
             }
             return mult;
