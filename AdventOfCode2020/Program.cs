@@ -9,7 +9,8 @@ namespace AdventOfCode2020
             Console.WriteLine("Start!");
 
             //var day1 = new Day1().CalcPart1();
-            var day2 = new Day2.Day2_Password_Philosophy().Calc();
+            //var day2 = new Day2.Day2_Password_Philosophy().Calc();
+            var day3 = new Day3.Day3TobogganTrajectory().Clac();
             Console.ReadLine();
         }
     }
