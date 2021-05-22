@@ -7,30 +7,85 @@ using System.Threading.Tasks;
 
 namespace AdventOfCode2020.Day4
 {
-
-    public class Passport
+    public interface IValidationRole
     {
-        public string BirthYear { get; set; }
-        public string IssueYear { get; set; }
-        public string ExpirationYear { get; set; } 
-        public string Height { get; set; }
-        public string HairColor { get; set; }
-        public string EyeColor { get; set; }
-        public string PassportID { get; set; }
-        public string CountryID { get; set; }
+        public bool IsRequired { get; }
+        public string FrendlyName { get; }
+        public string Value { get; set; }
+        bool IsValid();
+    }
 
+    public class BirthYearRule : IValidationRole
+    {
+        //byr (Birth Year) - four digits; at least 1920 and at most 2002.
+        public string Value { get; set; }
+        public string FrendlyName { get { return "byr"; } }
+        public bool IsRequired { get { return true; } }
         public bool IsValid()
         {
-            var valid =  !string.IsNullOrEmpty(BirthYear) &&
-                !string.IsNullOrEmpty(IssueYear) &&
-                !string.IsNullOrEmpty(ExpirationYear) && 
-                !string.IsNullOrEmpty(Height) &&
-                !string.IsNullOrEmpty(HairColor) &&
-                !string.IsNullOrEmpty(EyeColor) &&
-                !string.IsNullOrEmpty(PassportID);
-            //&&  !string.IsNullOrEmpty(CountryID)
+            if (!IsRequired)
+                return true;
 
-            return valid; 
+            int value;
+            try
+            {
+                value = Convert.ToInt32(Value);
+            }
+            catch
+            {
+                return false; 
+            }
+    
+            var isvalid = value >= 1920 && value <= 2005 ? true : false;
+            return isvalid;
+        }
+    }
+    public class IssueYear : IValidationRole
+    {
+        //iyr(Issue Year) - four digits; at least 2010 and at most 2020.
+        public string Value { get; set; }
+        public string FrendlyName { get { return "iyr"; } }
+        public bool IsRequired { get { return true; } }
+        public bool IsValid()
+        {
+            if (!IsRequired)
+                return true;
+
+            int value;
+            try
+            {
+                value = Convert.ToInt32(Value);
+            }
+            catch
+            {
+                return false;
+            }
+
+            var isvalid = value >= 2010 && value <= 2020 ? true : false;
+            return isvalid;
+        }
+    }
+    public class Passport
+    { 
+        //eyr(Expiration Year) - four digits; at least 2020 and at most 2030.
+        //hgt(Height) - a number followed by either cm or in:
+        //If cm, the number must be at least 150 and at most 193.
+        //If in, the number must be at least 59 and at most 76.
+        //hcl(Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+        //ecl(Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+        //pid(Passport ID) - a nine-digit number, including leading zeroes.
+        //cid(Country ID) - ignored, missing or not.
+
+     List<IValidationRole> validationRules = new List<IValidationRole>();
+        
+        private void GenerateRulse()
+        {
+            validationRules.Add(new BirthYearRule());
+        }
+        public bool IsValid()
+        {
+            var valid = validationRules.All(r => r.IsValid());
+            return valid;
         }
         public void Parse(string passport)
         {
@@ -40,39 +95,8 @@ namespace AdventOfCode2020.Day4
                 var i = item.Split(':');
                 var key = i[0];
                 var val = i[1];
-                switch (key)
-                {
-                    case "byr":
-                        BirthYear = val;
-                        break;
-                    case "iyr":
-                        IssueYear = val;
-                        break;
-                    case "eyr":
-                        ExpirationYear = val;
-                        break;
-                    case "hgt":
-                        Height = val;
-                        break;
-                    case "hcl":
-                        HairColor = val;
-                        break;
-                    case "ecl":
-                        EyeColor = val;
-                        break;
-                    case "pid":
-                        PassportID = val;
-                        break;
-                    case "cid":
-                        CountryID = val;
-                        break;
-                    default:
-                        break;
-                }
+                var rule = validationRules.Find(r => r.FrendlyName == key).Value = val;
             }
-
-
-
         }
     }
     public class Day4PassportProcessing
