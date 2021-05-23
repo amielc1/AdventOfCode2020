@@ -25,7 +25,10 @@ namespace AdventOfCode2020.Day4
         {
             if (!IsRequired)
                 return true;
-
+            if (Value == null) 
+                return false;
+            if (Value.Length != 4)
+                return false;
             int value;
             try
             {
@@ -33,9 +36,9 @@ namespace AdventOfCode2020.Day4
             }
             catch
             {
-                return false; 
+                return false;
             }
-    
+
             var isvalid = value >= 1920 && value <= 2005 ? true : false;
             return isvalid;
         }
@@ -50,7 +53,10 @@ namespace AdventOfCode2020.Day4
         {
             if (!IsRequired)
                 return true;
-
+            if (Value == null) 
+                return false;
+            if (Value.Length != 4)
+                return false;
             int value;
             try
             {
@@ -65,27 +71,185 @@ namespace AdventOfCode2020.Day4
             return isvalid;
         }
     }
-    public class Passport
-    { 
+    public class ExpirationYear : IValidationRole
+    {
         //eyr(Expiration Year) - four digits; at least 2020 and at most 2030.
-        //hgt(Height) - a number followed by either cm or in:
-        //If cm, the number must be at least 150 and at most 193.
-        //If in, the number must be at least 59 and at most 76.
-        //hcl(Hair Color) - a # followed by exactly six characters 0-9 or a-f.
-        //ecl(Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
-        //pid(Passport ID) - a nine-digit number, including leading zeroes.
-        //cid(Country ID) - ignored, missing or not.
+        public string Value { get; set; }
+        public string FrendlyName { get { return "eyr"; } }
+        public bool IsRequired { get { return true; } }
+        public bool IsValid()
+        {
+            if (!IsRequired)
+                return true;
+            if (Value == null) 
+                return false;
+            if (Value.Length != 4)
+                return false;
+            int value;
+            try
+            {
+                value = Convert.ToInt32(Value);
+            }
+            catch
+            {
+                return false;
+            }
 
-     List<IValidationRole> validationRules = new List<IValidationRole>();
-        
+            var isvalid = value >= 2020 && value <= 2030 ? true : false;
+            return isvalid;
+        }
+    }
+    public class Height : IValidationRole
+    {
+        //hgt(Height) - a number followed by either cm or in:
+        public string Value { get; set; }
+        public string FrendlyName { get { return "hgt"; } }
+        public bool IsRequired { get { return true; } }
+        public bool IsValid()
+        {
+            if (!IsRequired)
+                return true;
+            if (Value == null) 
+                return false;
+
+            var headindex = Value.Contains("in") ? Value.IndexOf("in") : Value.IndexOf("cm");
+            if (headindex == -1)
+                return false;
+            string head = Value.Substring(headindex, 2);
+            if (head != "cm" && head != "in")
+                return false;
+
+            int value;
+            try
+            {
+                value = Convert.ToInt32(Value.Substring(0, Value.Length - 2));
+            }
+            catch
+            {
+                return false;
+            }
+
+            bool isvalid = false;
+            if (head == "cm")
+            {
+                //If cm, the number must be at least 150 and at most 193.
+                isvalid = value >= 150 && value <= 193 ? true : false;
+            }
+            else
+            {
+                //If in, the number must be at least 59 and at most 76.
+                isvalid = value >= 59 && value <= 76 ? true : false;
+            }
+            return isvalid;
+        }
+    }
+    public class HairColor : IValidationRole
+    {
+        //hcl(Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+        public string Value { get; set; }
+        public string FrendlyName { get { return "hcl"; } }
+        public bool IsRequired { get { return true; } }
+        public bool IsValid()
+        {
+            if (!IsRequired)
+                return true;
+            if (Value == null) 
+                return false;
+            var head = Value[0];
+            if (head != '#')
+                return false;
+
+
+            foreach (var item in Value.Substring(1))
+            {
+                if (!char.IsDigit(item))
+                {
+                    if (!(item >= 'a' && item <= 'f'))
+                        return false;
+                }
+            }
+            return true;
+        }
+    }
+    public class EyeColor : IValidationRole
+    {
+        //ecl(Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+        public string Value { get; set; }
+        public string FrendlyName { get { return "ecl"; } }
+        public bool IsRequired { get { return true; } }
+        public bool IsValid()
+        {
+            if (!IsRequired)
+                return true;
+            if (Value == null) 
+                return false;
+            string[] colors = new string[] { "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
+            var isValidColor = colors.Any(color => color == Value);
+            return isValidColor;
+        }
+    }
+    public class PassportID : IValidationRole
+    {
+        //pid(Passport ID) - a nine-digit number, including leading zeroes.
+        public string Value { get; set; }
+        public string FrendlyName { get { return "pid"; } }
+        public bool IsRequired { get { return true; } }
+        public bool IsValid()
+        {
+            if (!IsRequired)
+                return true;
+            if (Value == null) 
+                return false;
+            if (Value.Length != 9)
+                return false;
+            try
+            {
+                int value;
+                var parse = int.TryParse(Value, out value);
+                if (!parse)
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+    public class CountryID : IValidationRole
+    {
+        //cid(Country ID) - ignored, missing or not.
+        public string Value { get; set; }
+        public string FrendlyName { get { return "cid"; } }
+        public bool IsRequired { get { return true; } }
+        public bool IsValid() => true;  
+    }
+
+    public class Passport
+    {
+          
+        List<IValidationRole> validationRules = new List<IValidationRole>();
+        public bool  IsPassportValid { get; private set; }
+        public Passport()
+        {
+            GenerateRulse();
+        }
         private void GenerateRulse()
         {
             validationRules.Add(new BirthYearRule());
+            validationRules.Add(new IssueYear());
+            validationRules.Add(new ExpirationYear());
+            validationRules.Add(new Height());
+            validationRules.Add(new HairColor());
+            validationRules.Add(new EyeColor());
+            validationRules.Add(new PassportID());
+            validationRules.Add(new CountryID());
         }
         public bool IsValid()
         {
-            var valid = validationRules.All(r => r.IsValid());
-            return valid;
+            IsPassportValid = validationRules.All(r => r.IsValid());
+            return IsPassportValid;
         }
         public void Parse(string passport)
         {
@@ -95,7 +259,9 @@ namespace AdventOfCode2020.Day4
                 var i = item.Split(':');
                 var key = i[0];
                 var val = i[1];
-                var rule = validationRules.Find(r => r.FrendlyName == key).Value = val;
+                var rule = validationRules.Find(r => r.FrendlyName == key);
+                rule.Value = val;
+
             }
         }
     }
@@ -121,6 +287,7 @@ namespace AdventOfCode2020.Day4
             parseStringPassport(passportsList, passportRow);// for the finel chunck
 
             var validPassports = passportsList.Where(pass => pass.IsValid()).Count();
+            //133
         }
 
         private static void parseStringPassport(List<Passport> passportsList, StringBuilder passportRow)
