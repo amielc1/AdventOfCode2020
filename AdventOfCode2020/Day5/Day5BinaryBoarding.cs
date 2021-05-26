@@ -59,11 +59,31 @@ namespace AdventOfCode2020.Day5
 
         public Day5BinaryBoarding()
         {
+            var seatStr = "BBBBBBBRRR";
+            var seat = new Seat(seatStr);
+
+
             string path = @"C:\Users\amielc1\source\repos\AdventOfCode2020\AdventOfCode2020\Day5\Day5Input.txt";
             var seats = File.ReadAllLines(path).ToList();
-            var maxSeat  = seats.Select(s => new Seat(s)).Max(seat =>seat.SeatID);
+            var maxSeat = seats.Select(s => new Seat(s)).Max(seat => seat.SeatID);
 
 
+            var ids = new List<int>();
+            var seatIds = seats.Select(s => new Seat(s).SeatID).ToList();
+            seatIds.Sort();
+            for (int i = seatIds[0], j = 0; i < seatIds.Count; i++, j++)
+            {
+                if (seatIds[j] != i)
+                {
+                    ids.Add(i);
+                    if (seatIds.Find(ss => ss == i) == 0 )
+                    {
+                        var mySeat = i; 
+                    }
+                }
+            }
+
+          
         }
     }
 }
