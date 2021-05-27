@@ -9,15 +9,11 @@ namespace AdventOfCode2020.Day6
 {
     public class GroupSet
     {
-        private HashSet<char> charSet;
-        public int GroupLen { get { return charSet.Count; } }
-        public GroupSet(string word)
+        public List<string> pesronWord = new List<string>();
+        public int Sum { get; set; }
+        public GroupSet()
         {
-            charSet = new HashSet<char>();
-            foreach (char chr in word)
-            {
-                charSet.Add(chr);
-            }
+
         }
     }
     public class Day6CustomCustoms
@@ -26,31 +22,46 @@ namespace AdventOfCode2020.Day6
         {
             string path = @"C:\Users\amielc1\source\repos\AdventOfCode2020\AdventOfCode2020\Day6\Day6Input.txt";
             var grouplines = File.ReadAllLines(path).ToList();
-            List<GroupSet> groupSetList = new List<GroupSet>();
-            StringBuilder word = new StringBuilder();
+
+            List<GroupSet> groups = new List<GroupSet>();
+            GroupSet tempGroup = new GroupSet();
             foreach (var line in grouplines)
             {
-                if (line != string.Empty) 
+                if (line != string.Empty)
                 {
-                    word.Append(line);
+                    tempGroup.pesronWord.Add(line);
                 }
                 else
                 {
-                    makeGroup(groupSetList, word);
+                    groups.Add(tempGroup);
+                    tempGroup = new GroupSet();
                 }
             }
-            makeGroup(groupSetList, word);
-            var sum = groupSetList.Sum(g => g.GroupLen);
+            groups.Add(tempGroup);
+             
+            foreach (var group in groups)
+            {
+                if (group.pesronWord.Count == 1)
+                {
+                    group.Sum = group.pesronWord[0].Length;
+                    continue;
+                }
+                foreach (char chr in group.pesronWord[0])
+                {
+                    bool flag = true;
+                    for (int i = 1; i < group.pesronWord.Count; i++)
+                    {
+                        if (!group.pesronWord[i].Contains(chr))
+                            flag = false;
+                    }
+                    if (flag)
+                        group.Sum++;
+                }
+            }
+
+            var sum = groups.Sum(g => g.Sum);
         }
 
-        private static void makeGroup(List<GroupSet> groupList, StringBuilder word)
-        {
-            if (word.Length > 0)
-            {
-                var gSet = new GroupSet(word.ToString());
-                groupList.Add(gSet);
-                word.Clear();
-            }
-        }
+
     }
 }
